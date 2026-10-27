@@ -240,7 +240,8 @@ export function LandingInteractive() {
 
               <div className="text-xs text-[var(--muted-foreground)] border-t border-[var(--border)] pt-3 leading-relaxed">
                 <span className="font-medium text-[var(--foreground)]">Total Likely Scope:</span>{" "}
-                <span className="font-mono text-[var(--foreground)]">{totalHours}h</span> (base {baseHours}h +{" "}
+                <span className="font-mono text-[var(--foreground)]">{totalHours}</span>
+                <span>h</span> (base {baseHours}h +{" "}
                 {revisionHours + paymentRiskHours}h scope creep).
               </div>
             </div>
