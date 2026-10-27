@@ -79,5 +79,5 @@ Nothing in this scenario was a software bug. The money was surrendered in two se
 ---
 
 ## Prize Categories Targeted
-- 🏆 **Best Use of Gemma 4** (Local-first structured extraction, quote parsing, and contract intelligence)
-- 🏆 **Best Open-Source AI Project**
+- **Best Use of Gemma 4** (Local-first structured extraction, quote parsing, and contract intelligence)
+- **Best Open-Source AI Project**
