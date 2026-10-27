@@ -50,7 +50,13 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
 
   const rawResponse = (latestAnalysis?.rawResponse as any) || {};
   const math = rawResponse.math;
-  const counterTerms = rawResponse.counterOfferTerms;
+  const counterTerms = rawResponse.counterOfferTerms || (latestAnalysis?.counterOffer ? {
+    proposedBudget: math?.suggestedCounterOfferAmount || project.budgetAmount,
+    depositPercent: 40,
+    revisionCap: 2,
+    killFeePercent: 35,
+    paymentNetDays: 14,
+  } : null);
   const summaryText = rawResponse.summary || latestAnalysis?.counterOffer || "Commercial contract analysis evaluated.";
 
   return (
@@ -154,17 +160,17 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
               <div className="rounded border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
                 <span className="block text-[11px] text-[var(--muted-foreground)]">Hours Range</span>
                 <span className="mt-1 block text-sm font-semibold text-[var(--foreground)]">
-                  <span className="font-mono">{math.hoursRange.low}</span> - <span className="font-mono">{math.hoursRange.high}</span>h
+                  <span className="font-mono">{math?.totalHoursLow ?? math?.hoursRange?.low ?? project.estimatedHours}</span> - <span className="font-mono">{math?.totalHoursHigh ?? math?.hoursRange?.high ?? project.estimatedHours}</span>h
                 </span>
                 <span className="text-[10px] text-[var(--muted-foreground)]">
-                  Likely: <span className="font-mono">{math.hoursRange.likely}</span>h
+                  Likely: <span className="font-mono">{math?.totalHoursLikely ?? math?.hoursRange?.likely ?? project.estimatedHours}</span>h
                 </span>
               </div>
 
               <div className="rounded border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
                 <span className="block text-[11px] text-[var(--muted-foreground)]">Hidden Work Items</span>
                 <span className="mt-1 block text-sm font-semibold text-[var(--foreground)]">
-                  +<span className="font-mono">{math.hiddenWorkItemHours}</span>h
+                  +<span className="font-mono">{math?.hiddenHours ?? math?.hiddenWorkItemHours ?? 0}</span>h
                 </span>
                 <span className="text-[10px] text-[var(--muted-foreground)]">Unpriced asks</span>
               </div>
@@ -172,7 +178,7 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
               <div className="rounded border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
                 <span className="block text-[11px] text-[var(--muted-foreground)]">Effective Hourly Rate</span>
                 <span className="mt-1 block text-sm font-semibold text-[var(--foreground)]">
-                  $<span className="font-mono">{math.effectiveHourlyRate}</span>/hr
+                  $<span className="font-mono">{math?.effectiveHourlyRate ?? Math.round(project.budgetAmount / (project.estimatedHours || 1))}</span>/hr
                 </span>
                 <span className="text-[10px] text-[var(--muted-foreground)]">
                   Offered fee ÷ likely hours
@@ -183,13 +189,13 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
                 <span className="block text-[11px] text-[var(--muted-foreground)]">Rate Gap vs Floor</span>
                 <span
                   className={`mt-1 block text-sm font-semibold ${
-                    math.rateDelta >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--destructive)]"
+                    (math?.rateDelta ?? 0) >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-[var(--destructive)]"
                   }`}
                 >
-                  {math.rateDelta >= 0 ? "+" : ""}$<span className="font-mono">{math.rateDelta}</span>/hr
+                  {(math?.rateDelta ?? 0) >= 0 ? "+" : ""}$<span className="font-mono">{math?.rateDelta ?? 0}</span>/hr
                 </span>
                 <span className="text-[10px] text-[var(--muted-foreground)]">
-                  Floor: $<span className="font-mono">{math.hourlyMinimum}</span>/hr
+                  Floor: $<span className="font-mono">{math?.hourlyMinimum ?? project.hourlyMinimum}</span>/hr
                 </span>
               </div>
             </div>
@@ -331,9 +337,9 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
             </p>
           ) : (
             <div className="space-y-3">
-              {similarDeals.map((deal) => (
+              {similarDeals.map((deal, idx) => (
                 <div
-                  key={deal.chunkId}
+                  key={deal.chunkId || deal.id || idx}
                   className="rounded border border-[var(--border)] bg-[var(--surface-subtle)] p-3 text-xs space-y-1.5"
                 >
                   <div className="flex items-center justify-between">
@@ -341,7 +347,7 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
                       {deal.projectTitle} ({deal.clientName})
                     </span>
                     <span className="text-[11px] text-[var(--muted-foreground)]">
-                      Similarity: <span className="font-mono">{Math.round(deal.score * 100)}</span>%
+                      Similarity: <span className="font-mono">{Math.round((deal.hybridScore ?? deal.score ?? 0) * 100)}</span>%
                     </span>
                   </div>
                   <p className="text-[var(--muted-foreground)] line-clamp-2 leading-relaxed">
