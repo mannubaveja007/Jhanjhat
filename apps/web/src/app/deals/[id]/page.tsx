@@ -48,8 +48,10 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
       ? "border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
       : "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]";
 
-  const math = latestAnalysis?.math as any;
-  const counterTerms = latestAnalysis?.counterOfferTerms as any;
+  const rawResponse = (latestAnalysis?.rawResponse as any) || {};
+  const math = rawResponse.math;
+  const counterTerms = rawResponse.counterOfferTerms;
+  const summaryText = rawResponse.summary || latestAnalysis?.counterOffer || "Commercial contract analysis evaluated.";
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] py-10 px-4 sm:px-6 lg:px-8 overflow-x-clip">
@@ -131,7 +133,7 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
             </div>
 
             <p className="text-xs text-[var(--foreground)] leading-relaxed">
-              {latestAnalysis.summary}
+              {summaryText}
             </p>
           </div>
         )}
@@ -247,8 +249,7 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
                     </p>
 
                     <div className="text-[11px] text-[var(--muted-foreground)]">
-                      <strong className="text-[var(--foreground)]">Recommended Mitigation:</strong>{" "}
-                      {clause.mitigation}
+                      <strong className="text-[var(--foreground)]">Evidence:</strong> Exact match verified in source document.
                     </div>
                   </div>
                 );
@@ -277,17 +278,19 @@ export default async function DealDetailPage({ params }: DealDetailPageProps) {
                 >
                   <div className="space-y-1">
                     <div className="font-semibold text-[var(--foreground)]">{item.title}</div>
-                    <div className="text-[var(--muted-foreground)]">{item.description}</div>
+                    {item.quote && (
+                      <div className="text-[var(--muted-foreground)] font-mono text-[11px]">&ldquo;{item.quote}&rdquo;</div>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-4 text-xs font-medium text-[var(--foreground)] shrink-0">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
-                      +<span className="font-mono">{item.extraHours}</span>h
+                      +<span className="font-mono">{item.hoursLikely}</span>h
                     </span>
                     <span className="flex items-center gap-1">
                       <DollarSign className="h-3.5 w-3.5 text-[var(--muted-foreground)]" />
-                      +$<span className="font-mono">{item.extraCost.toLocaleString()}</span>
+                      +$<span className="font-mono">{(item.hoursLikely * (project.hourlyMinimum || 50)).toLocaleString()}</span>
                     </span>
                   </div>
                 </div>

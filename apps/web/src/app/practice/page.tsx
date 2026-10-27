@@ -62,7 +62,7 @@ export default async function PracticeHubPage() {
 
                     {latestAnalysis && (
                       <p className="text-xs text-[var(--muted-foreground)] line-clamp-1">
-                        {latestAnalysis.summary}
+                        {((latestAnalysis.rawResponse as any)?.summary as string) || latestAnalysis.counterOffer || "Commercial contract scenario ready for voice sparring."}
                       </p>
                     )}
                   </div>
