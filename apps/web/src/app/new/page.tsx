@@ -109,6 +109,8 @@ export default function NewDealPage() {
       setError(err.message || "An unexpected error occurred during analysis.");
       setIsSubmitting(false);
     }
+  };
+
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] py-10 px-4 sm:px-6 overflow-x-clip">
       <div className="mx-auto max-w-4xl">
