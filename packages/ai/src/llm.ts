@@ -50,7 +50,7 @@ export class LLMClient {
     this.baseUrl = (process.env.LLM_BASE_URL || "http://localhost:11434").replace(/\/+$/, "");
     this.apiKey = process.env.LLM_API_KEY || process.env.OPENROUTER_API_KEY || "";
     this.model = process.env.LLM_MODEL || "gemma4:12b";
-    this.defaultTimeout = Number(process.env.LLM_TIMEOUT_MS) || 90000;
+    this.defaultTimeout = Number(process.env.LLM_TIMEOUT_MS) || 180000;
   }
 
   getBaseUrl(): string {
