@@ -173,7 +173,7 @@ export function LandingInteractive() {
                   step={500}
                   value={budget}
                   onChange={(e) => setBudget(Number(e.target.value))}
-                  className="w-full accent-[var(--accent)]"
+                  className="w-full accent-[var(--accent)] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                 />
               </div>
 
@@ -183,7 +183,7 @@ export function LandingInteractive() {
                     type="checkbox"
                     checked={hasUnlimitedRevisions}
                     onChange={(e) => setHasUnlimitedRevisions(e.target.checked)}
-                    className="accent-[var(--accent)] h-4 w-4 rounded"
+                    className="accent-[var(--accent)] h-4 w-4 rounded disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                   />
                   <div>
                     <span className="font-medium text-[var(--foreground)] block">
@@ -200,7 +200,7 @@ export function LandingInteractive() {
                     type="checkbox"
                     checked={hasPaymentDelayed}
                     onChange={(e) => setHasPaymentDelayed(e.target.checked)}
-                    className="accent-[var(--accent)] h-4 w-4 rounded"
+                    className="accent-[var(--accent)] h-4 w-4 rounded disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
                   />
                   <div>
                     <span className="font-medium text-[var(--foreground)] block">
