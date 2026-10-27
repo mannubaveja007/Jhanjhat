@@ -1,0 +1,205 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+model Project {
+  id             String        @id @default(cuid())
+  title          String
+  clientName     String        @default("Client")
+  budgetAmount   Float         @default(0)
+  estimatedHours Float         @default(0)
+  hourlyMinimum  Float         @default(50)
+  currency       String        @default("USD")
+  status         String        @default("ACTIVE") // ACTIVE, COMPLETED, ARCHIVED
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  documents      Document[]
+  analyses       Analysis[]
+  hoursLogs      HoursLog[]
+  alerts         Alert[]
+  simulations    Simulation[]
+  chunks         Chunk[]
+}
+
+model Document {
+  id         String     @id @default(cuid())
+  projectId  String
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title      String     @default("Deal Document")
+  type       String     @default("CONTRACT") // CONTRACT, BRIEF, CHAT
+  rawContent String     @db.Text
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  analyses   Analysis[]
+  chunks     Chunk[]
+
+  @@index([projectId])
+}
+
+model Chunk {
+  id             String                       @id @default(cuid())
+  projectId      String
+  project        Project                      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  documentId     String?
+  document       Document?                    @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  clauseId       String?
+  content        String                       @db.Text
+  metadata       Json?
+  embeddingModel String                       @default("openai/text-embedding-3-small")
+  embedding      Unsupported("vector(1024)")?
+  searchVector   Unsupported("tsvector")?
+  createdAt      DateTime                     @default(now())
+
+  @@index([projectId])
+  @@index([documentId])
+  @@index([embeddingModel])
+}
+
+model Analysis {
+  id                 String       @id @default(cuid())
+  projectId          String
+  project            Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  documentId         String
+  document           Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  riskScore          Int          @default(0) // 0-100
+  effectiveHourlyRate Float       @default(0)
+  decision           String       // TAKE, RENEGOTIATE, WALK
+  counterOffer       String       @db.Text
+  draftReply         String       @db.Text
+  tone               String       @default("ENGLISH") // ENGLISH, HINGLISH
+  droppedQuotesCount Int          @default(0)
+  hiddenCosts        Json?        // { revisions, meetings, backAndForth, delayedPayment, tools, taxes }
+  rawResponse        Json?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  clauses            Clause[]
+  workItems          WorkItem[]
+
+  @@index([projectId])
+  @@index([documentId])
+}
+
+model Clause {
+  id          String   @id @default(cuid())
+  analysisId  String
+  analysis    Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  category    String   // UNLIMITED_REVISIONS, PAYMENT_AFTER_LAUNCH, VAGUE_DELIVERABLES, NO_KILL_FEE, UNCLEAR_IP, NO_DEADLINE_CHANGE_TERMS, MISSING_EXCLUSIONS, OTHER
+  quote       String   @db.Text
+  explanation String   @db.Text
+  severity    String   @default("MEDIUM") // HIGH, MEDIUM, LOW
+  createdAt   DateTime @default(now())
+
+  @@index([analysisId])
+}
+
+model WorkItem {
+  id          String   @id @default(cuid())
+  analysisId  String
+  analysis    Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  title       String
+  quote       String?  @db.Text
+  hoursLow    Float    @default(0)
+  hoursLikely Float    @default(0)
+  hoursHigh   Float    @default(0)
+  isHidden    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([analysisId])
+}
+
+model HoursLog {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  hours       Float
+  description String   @db.Text
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model Alert {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type        String   // HOURS_70, HOURS_90, HOURS_100, RATE_BELOW_MIN
+  message     String   @db.Text
+  isDismissed Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model Simulation {
+  id                       String           @id @default(cuid())
+  projectId                String
+  project                  Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  clientName               String           @default("Client")
+  freelancerName           String           @default("Freelancer")
+  persona                  String           @default("AGGRESSIVE") // AGGRESSIVE, SCOPE_CREEPER, BUDGET_SQUEEZER, CHILL
+  difficulty               Int              @default(1) // 1-3
+  projectBrief             String           @db.Text
+  hiddenAsks               Json             // string[]
+  budgetCeiling            Float            @default(5000)
+  elevenlabsConversationId String?
+  status                   String           @default("PENDING") // PENDING, ACTIVE, COMPLETED
+  durationSeconds          Int              @default(0)
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
+
+  turns                    SimulationTurn[]
+  scorecard                Scorecard?
+
+  @@index([projectId])
+}
+
+model SimulationTurn {
+  id           String     @id @default(cuid())
+  simulationId String
+  simulation   Simulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  role         String     // "user" | "client" | "agent"
+  content      String     @db.Text
+  turnIndex    Int
+  createdAt    DateTime   @default(now())
+
+  @@index([simulationId, turnIndex])
+}
+
+model Scorecard {
+  id              String     @id @default(cuid())
+  simulationId    String     @unique
+  simulation      Simulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  overallScore    Int        @default(0) // 0-100
+  summary         String     @db.Text
+  freeConcessions Json       // [{ quote: string, explanation: string }]
+  boundariesHeld  Json       // [{ quote: string, rule: string }]
+  rewrites        Json       // [{ weakReply: string, suggestedRewrite: string, reasoning: string }]
+  createdAt       DateTime   @default(now())
+}
+
+model AiUsage {
+  id               String   @id @default(cuid())
+  model            String
+  provider         String
+  callType         String   // "DEAL_ANALYSIS" | "OUT_OF_SCOPE" | "SCORECARD" | "EMBEDDINGS"
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  cost             Float    @default(0)
+  latencyMs        Int      @default(0)
+  metadata         Json?
+  createdAt        DateTime @default(now())
+
+  @@index([callType, createdAt])
+}

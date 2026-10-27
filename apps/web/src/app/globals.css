@@ -1,0 +1,57 @@
+/* Hallmark · v2.0.0 | genre: modern-minimal | theme: editorial-slate */
+/* critique: clean tokens, strict contrast, no arbitrary transitions, accessible focus-visible */
+
+@import "./tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  overflow-x: clip;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Floor 5: Display heads carry overflow-wrap and balanced wrap */
+h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+  min-width: 0;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+/* Floor 6: Focus visible appears instantly */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Reflex 26b: Active states for interactive elements */
+button:active, a:active {
+  opacity: 0.85;
+}
+
+/* Floor 2: Transition rules - never transition: all */
+button, a, input, select, textarea {
+  transition-property: color, background-color, border-color, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hallmark Floor 49: Clickable elements with long text require nowrap */
+.nowrap, button.nowrap {
+  white-space: nowrap;
+}
+
+/* Floor 7: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
