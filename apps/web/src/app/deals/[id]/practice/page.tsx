@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useConversation } from "@elevenlabs/react";
+import { useConversation, ConversationProvider } from "@elevenlabs/react";
 import {
   Mic,
   MicOff,
@@ -41,7 +41,19 @@ interface ScorecardData {
   rewrites: Rewrite[];
 }
 
-export default function PracticeRoomPage() {
+const PERSONA_MAP: Record<string, "AGGRESSIVE" | "SCOPE_CREEPER" | "BUDGET_SQUEEZER" | "CHILL"> = {
+  "Pushy VP of Product": "AGGRESSIVE",
+  "Scope-creeping agency director": "SCOPE_CREEPER",
+  "Passive-aggressive founder": "BUDGET_SQUEEZER",
+};
+
+const DIFFICULTY_MAP: Record<string, 1 | 2 | 3> = {
+  gentle: 1,
+  realistic: 2,
+  ruthless: 3,
+};
+
+function PracticeRoomInner() {
   const params = useParams();
   const dealId = params?.id as string;
 
@@ -58,15 +70,33 @@ export default function PracticeRoomPage() {
   const [scorecard, setScorecard] = useState<ScorecardData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Spoken transcript tracking
+  const activeConversationIdRef = useRef<string | null>(null);
+  const localTurnsRef = useRef<Array<{ role: "user" | "client"; content: string }>>([]);
+
   // ElevenLabs Conversational AI hook
   const conversation = useConversation({
     onConnect: () => {
       console.log("[ElevenLabs] Connected");
       setTimerActive(true);
+      try {
+        const id = conversation.getId();
+        if (id) activeConversationIdRef.current = id;
+      } catch (e) {
+        // ignore ID lookup if not yet ready
+      }
     },
     onDisconnect: () => {
       console.log("[ElevenLabs] Disconnected");
       setTimerActive(false);
+    },
+    onMessage: (msg: any) => {
+      if (msg && msg.message) {
+        localTurnsRef.current.push({
+          role: msg.source === "ai" ? "client" : "user",
+          content: msg.message,
+        });
+      }
     },
     onError: (err) => {
       console.error("[ElevenLabs] Error:", err);
@@ -97,6 +127,8 @@ export default function PracticeRoomPage() {
     setError(null);
     setScorecard(null);
     setTimeLeft(300);
+    localTurnsRef.current = [];
+    activeConversationIdRef.current = null;
 
     try {
       // 1. Request signed URL and simulation ID from backend
@@ -105,8 +137,8 @@ export default function PracticeRoomPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           freelancerName,
-          persona,
-          difficulty,
+          persona: PERSONA_MAP[persona] || "BUDGET_SQUEEZER",
+          difficulty: DIFFICULTY_MAP[difficulty] || 2,
         }),
       });
 
@@ -132,6 +164,14 @@ export default function PracticeRoomPage() {
     setIsFinishing(true);
     setTimerActive(false);
 
+    let convId = activeConversationIdRef.current;
+    try {
+      const liveId = conversation.getId();
+      if (liveId) convId = liveId;
+    } catch (e) {
+      // ignore
+    }
+
     try {
       await conversation.endSession();
     } catch (e) {
@@ -145,6 +185,8 @@ export default function PracticeRoomPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           simulationId,
+          conversationId: convId,
+          localTurns: localTurnsRef.current,
         }),
       });
 
@@ -417,7 +459,20 @@ export default function PracticeRoomPage() {
             </div>
           </div>
         )}
+
+        {/* Informational Disclaimer */}
+        <p className="text-center text-[10px] text-[var(--muted-foreground)]">
+          Jhanjhat provides deal analysis and negotiation rehearsal for informational purposes only, not legal or financial advice.
+        </p>
       </div>
     </main>
+  );
+}
+
+export default function PracticeRoomPage() {
+  return (
+    <ConversationProvider>
+      <PracticeRoomInner />
+    </ConversationProvider>
   );
 }
