@@ -12,6 +12,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const json = await req.json().catch(() => ({}));
     const text = json.newRequestText || json.requestText;
     if (!text || typeof text !== "string" || text.trim().length < 5) {
       return NextResponse.json(
