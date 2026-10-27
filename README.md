@@ -14,7 +14,7 @@
 
 ---
 
-## 💡 The Problem in 30 Seconds
+## The Problem in 30 Seconds
 
 A client calls with a "simple landing page" for **₹8,000**.
 *“Ho jayega, ma'am.”*
@@ -29,7 +29,7 @@ Three weeks later: the 10-hour job took 41 hours. The order form became an inven
 
 ---
 
-## ⚡ Architecture & How It Works
+## Architecture & How It Works
 
 ### 1. Privacy-First System Flow
 
@@ -37,18 +37,18 @@ Your raw contracts and client chats stay **strictly local**. The Next.js backend
 
 ```mermaid
 flowchart TD
-    subgraph LOCAL[" 🔒 YOUR LOCAL MACHINE (Default & Private) "]
+    subgraph LOCAL[" YOUR LOCAL MACHINE (Default & Private) "]
         direction TB
-        UI["🖥️ Web UI<br/><i>Next.js 14 + Tailwind</i>"]
-        SRV["⚡ App Engine<br/><i>API Routes & TypeScript Maths</i>"]
-        RED["🛡️ Privacy Redactor<br/><i>Strips PAN, GST, UPI, Names, Phone</i>"]
-        LLM["🧠 Gemma (Ollama)<br/><i>Local Clause & Work Extraction</i>"]
-        DB[("💾 PostgreSQL + pgvector<br/><i>HNSW Cosine Index · 1024D</i>")]
+        UI["Web UI<br/><i>Next.js 14 + Tailwind</i>"]
+        SRV["App Engine<br/><i>API Routes & TypeScript Maths</i>"]
+        RED["Privacy Redactor<br/><i>Strips PAN, GST, UPI, Names, Phone</i>"]
+        LLM["Gemma (Ollama)<br/><i>Local Clause & Work Extraction</i>"]
+        DB[("PostgreSQL + pgvector<br/><i>HNSW Cosine Index · 1024D</i>")]
     end
 
-    subgraph CLOUD[" ☁️ EXTERNAL SERVICES (Zero Unredacted Data) "]
-        EMB["🌐 OpenRouter Embeddings<br/><i>text-embedding-3-small</i>"]
-        VOICE["🎙️ ElevenLabs Conversational AI<br/><i>Signed WebSocket Session</i>"]
+    subgraph CLOUD[" EXTERNAL SERVICES (Zero Unredacted Data) "]
+        EMB["OpenRouter Embeddings<br/><i>text-embedding-3-small</i>"]
+        VOICE["ElevenLabs Conversational AI<br/><i>Signed WebSocket Session</i>"]
     end
 
     UI -->|"Raw contract paste"| SRV
@@ -78,11 +78,11 @@ Every extracted clause quote is verified in plain code against the source docume
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Dev as 🧑‍💻 Freelancer
-    participant App as 🖥️ Jhanjhat Server
-    participant Gemma as 🧠 Local Gemma
-    participant V as 🔍 Quote Verifier
-    participant DB as 🗄️ pgvector DB
+    actor Dev as Freelancer
+    participant App as Jhanjhat Server
+    participant Gemma as Local Gemma
+    participant V as Quote Verifier
+    participant DB as pgvector DB
 
     Dev->>App: Paste contract or brief
     App->>Gemma: Analyze clauses & hidden work items
@@ -103,17 +103,17 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Dev as 🧑‍💻 Freelancer
-    participant Browser as 🌐 Client Browser
-    participant App as ⚡ Jhanjhat Backend
-    participant Eleven as 🎙️ ElevenLabs Agent
+    actor Dev as Freelancer
+    participant Browser as Client Browser
+    participant App as Jhanjhat Backend
+    participant Eleven as ElevenLabs Agent
 
     Dev->>Browser: Select Persona & Click "Start Voice Sparring"
     Browser->>App: Request signed practice session
     App->>Eleven: GET /v1/convai/conversation/get_signed_url
     Eleven-->>App: wss:// signed session URL
     App-->>Browser: Session token + Redacted context
-    Browser<<->>Eleven: 🗣️ Real-time voice sparring (max 5 min)
+    Browser<<->>Eleven: Real-time voice sparring (max 5 min)
     Dev->>Browser: Click "End Session & Evaluate"
     Browser->>App: Fetch debrief with conversation ID
     App->>Eleven: Query call transcript
@@ -123,24 +123,24 @@ sequenceDiagram
 
 ---
 
-## 🎯 Feature Matrix
+## Feature Matrix
 
 | Feature | Description | Status |
 |---|---|:---:|
-| **Deal Analysis** | Extracts risky clauses, hidden tasks, scope creep items, and rates | ✅ Verified |
-| **Quote Verifier** | Verbatim matching against contract text; drops AI hallucinations | ✅ Verified |
-| **Deterministic Maths** | Total hours & effective rate calculated in TypeScript, not LLM guesses | ✅ Verified |
-| **Voice Practice Room** | Live audio rehearsal with ElevenLabs conversational agent | ✅ Verified |
-| **Negotiation Scorecard** | Tracks concessions surrendered, boundaries defended & 3 rewrites | ✅ Verified |
-| **Budget Watch** | Logs actual hours; triggers alerts at 70%, 90%, 100% and below-floor rates | ✅ Verified |
-| **Out-of-Scope Check** | Instant check on new client messages: `IN_SCOPE` vs `OUT_OF_SCOPE` with pricing | ✅ Verified |
-| **Deal Memory** | PostgreSQL pgvector hybrid search across prior contract clauses | ✅ Verified |
-| **Privacy Redactor** | Regex redaction for PAN, Aadhaar, GSTIN, UPI, emails, and phone numbers | ✅ Verified |
-| **Kinetic Landing Page** | GSAP staggered reveals and smooth Lenis scrolling with reduced-motion support | ✅ Verified |
+| **Deal Analysis** | Extracts risky clauses, hidden tasks, scope creep items, and rates | Verified |
+| **Quote Verifier** | Verbatim matching against contract text; drops AI hallucinations | Verified |
+| **Deterministic Maths** | Total hours & effective rate calculated in TypeScript, not LLM guesses | Verified |
+| **Voice Practice Room** | Live audio rehearsal with ElevenLabs conversational agent | Verified |
+| **Negotiation Scorecard** | Tracks concessions surrendered, boundaries defended & 3 rewrites | Verified |
+| **Budget Watch** | Logs actual hours; triggers alerts at 70%, 90%, 100% and below-floor rates | Verified |
+| **Out-of-Scope Check** | Instant check on new client messages: `IN_SCOPE` vs `OUT_OF_SCOPE` with pricing | Verified |
+| **Deal Memory** | PostgreSQL pgvector hybrid search across prior contract clauses | Verified |
+| **Privacy Redactor** | Regex redaction for PAN, Aadhaar, GSTIN, UPI, emails, and phone numbers | Verified |
+| **Kinetic Landing Page** | GSAP staggered reveals and smooth Lenis scrolling with reduced-motion support | Verified |
 
 ---
 
-## 🗄️ Data Model
+## Data Model
 
 ```mermaid
 erDiagram
@@ -188,7 +188,7 @@ erDiagram
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### 1. Prerequisites
 - **Node.js 20+** and **pnpm**
@@ -224,7 +224,7 @@ Visit [`http://localhost:3000`](http://localhost:3000) to open the app.
 
 ---
 
-## 🔐 Privacy & Trust Model
+## Privacy & Trust Model
 
 | Outside Destination | What is Sent | How It Is Protected |
 |---|---|---|
@@ -236,6 +236,6 @@ Visit [`http://localhost:3000`](http://localhost:3000) to open the app.
 
 ---
 
-## 📜 License
+## License
 
-[MIT](LICENSE) © 2026 Mannu Baveja. Built for Hacktoberfest Hack Day 2026.
+[MIT](LICENSE) (c) 2026 Mannu Baveja. Built for Hacktoberfest Hack Day 2026.
