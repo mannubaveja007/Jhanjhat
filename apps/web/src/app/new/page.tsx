@@ -111,21 +111,13 @@ export default function NewDealPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <Navbar />
-
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="rounded bg-[var(--surface-muted)] px-2.5 py-0.5 text-xs font-medium text-[var(--muted-foreground)]">
-              Phase 1 &bull; Ingestion
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--foreground)]">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] py-10 px-4 sm:px-6 overflow-x-clip">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-8 pb-6 border-b border-[var(--border)]">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--foreground)]">
             Analyze Deal &amp; Contract Terms
           </h1>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">
             Paste a contract, brief, or client chat. Jhanjhat extracts risky clauses with verbatim quotes, computes hidden hours, and evaluates your effective hourly rate.
           </p>
         </div>
@@ -290,7 +282,7 @@ export default function NewDealPage() {
             <span className="font-semibold text-[var(--foreground)]">Legal Notice:</span> Jhanjhat provides automated commercial risk analysis, plain arithmetic scoping, and negotiation coaching for freelance contracts. This analysis is not legal advice. Consult a licensed attorney for formal legal contracts.
           </p>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

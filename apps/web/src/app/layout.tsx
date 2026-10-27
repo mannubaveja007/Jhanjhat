@@ -3,8 +3,8 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
-  title: "Syapa | Freelancer Meeting Recorder & Bad Client Simulator",
-  description: "Record and live transcribe meetings via Chrome MV3. Train negotiation against simulated difficult clients grounded in your real brief and past transcripts.",
+  title: "Jhanjhat | Freelance Commercial Intelligence & Voice Sparring",
+  description: "Deterministic contract scoping, real-time budget burn tracking, and voice sparring with AI client personas.",
 };
 
 export default function RootLayout({
