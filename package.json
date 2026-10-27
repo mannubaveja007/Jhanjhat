@@ -1,0 +1,22 @@
+{
+  "name": "jhanjhat-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter web dev",
+    "dev:all": "pnpm -r dev",
+    "test": "vitest run",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "db:generate": "pnpm --filter @jhanjhat/db generate",
+    "db:migrate": "pnpm --filter @jhanjhat/db migrate",
+    "db:push": "pnpm --filter @jhanjhat/db push",
+    "db:seed": "pnpm --filter @jhanjhat/db seed"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8",
+    "prettier": "^3.3.3"
+  }
+}
