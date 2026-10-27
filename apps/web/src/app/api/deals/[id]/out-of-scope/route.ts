@@ -12,8 +12,13 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const json = await req.json();
-    const validated = OutOfScopeReqSchema.parse(json);
+    const text = json.newRequestText || json.requestText;
+    if (!text || typeof text !== "string" || text.trim().length < 5) {
+      return NextResponse.json(
+        { error: "New request text must be at least 5 characters long." },
+        { status: 400 }
+      );
+    }
 
     const project = await projectRepository.getProject(params.id);
     if (!project) {
@@ -27,12 +32,23 @@ export async function POST(
       projectTitle: project.title,
       scopeSummary,
       hourlyMinimum: project.hourlyMinimum,
-      newRequestText: validated.newRequestText,
+      newRequestText: text,
     });
+
+    const isOutOfScope = result.status === "OUT_OF_SCOPE";
+    const estimatedExtraHours = Math.max(1, Math.round(result.suggestedPrice / (project.hourlyMinimum || 50)));
 
     return NextResponse.json({
       success: true,
       result,
+      evaluation: {
+        isOutOfScope,
+        reason: result.reasoning,
+        recommendedAction: isOutOfScope ? "CHARGE_EXTRA" : "ACCEPT",
+        estimatedExtraHours,
+        estimatedExtraFee: result.suggestedPrice,
+        suggestedReply: result.replyDraft,
+      },
     });
   } catch (err: any) {
     console.error("[Out of Scope API] Error:", err);
