@@ -61,7 +61,7 @@ export function BudgetWatchSection({
         body: JSON.stringify({
           hours: Number(newHours),
           date: newDate,
-          notes: newNotes,
+          description: newNotes || "Logged work session",
         }),
       });
 
@@ -69,8 +69,9 @@ export function BudgetWatchSection({
       const data = await res.json();
 
       setHoursLogs((prev) => [data.log, ...prev]);
-      if (data.alertsTriggered && data.alertsTriggered.length > 0) {
-        setAlerts((prev) => [...data.alertsTriggered, ...prev]);
+      const newAlerts = data.summary?.alerts || data.alertsTriggered;
+      if (newAlerts && newAlerts.length > 0) {
+        setAlerts(newAlerts);
       }
       setNewNotes("");
     } catch (err) {
